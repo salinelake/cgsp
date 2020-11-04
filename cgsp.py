@@ -386,8 +386,6 @@ class spectral_tree(spectral_projector):
                     logging.info('=======================================================')
                     break
         
-        print('Loaded model from %s'%(net_path) )
-
     
     def save_model(self, net_id):
         directory = './nn_data/' + self.config.experiment_name + '/{}.net'.format(net_id)
