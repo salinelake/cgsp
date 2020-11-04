@@ -461,19 +461,20 @@ class spectral_tree(spectral_projector):
             nspin = basis_input.shape[-1]
             psi_r, psi_i = self.edgeWavefunc(basis_input,t, depth)
             psi2 = psi_r**2 + psi_i**2
+            basis_input = basis_input.to(dtype=psi2.dtype)
             mirror_szsz_avg = th.zeros(nspin//2,dtype=psi2.dtype,device=psi2.device)
             szsz_avg = th.zeros(nspin//2,dtype=psi2.dtype,device=psi2.device)
             if self.config.pbc_x:
                 for l in range(1,nspin//2+1):
-                    szsz_observable = (basis_input * basis_input.roll(l,dims=1)).type_as(psi2).mean(-1)
+                    szsz_observable = (basis_input * basis_input.roll(l,dims=1)).mean(-1)
                     szsz_avg[l-1] = ( szsz_observable * psi2 / mcWeight).mean() / (psi2/mcWeight).mean()
             else:
                 for l in range(1,nspin//2+1):
-                    szsz_observable = (basis_input[:,:-1] * basis_input[:,1:]).type_as(psi2).mean(-1)
+                    szsz_observable = (basis_input[:,:-1] * basis_input[:,1:]).mean(-1)
                     szsz_avg[l-1] = ( szsz_observable * psi2 / mcWeight).mean() / (psi2/mcWeight).mean()
             
             ## only for wall initial state
-            mirror_szsz_observable = (basis_input[:,:nspin//2] *  basis_input[:,nspin//2:].flip(1))
+            mirror_szsz_observable = basis_input[:,:nspin//2] *  basis_input[:,nspin//2:].flip(1)
             mirror_szsz_avg = (mirror_szsz_observable * psi2.unsqueeze(-1) / mcWeight.unsqueeze(-1)
                               ).mean(0) / (psi2/mcWeight).mean()
             
